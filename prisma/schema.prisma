@@ -1,0 +1,214 @@
+// ColdChain SaaS — schema (Fase 1: identidade, tenancy e acesso).
+// Fases seguintes adicionam operação, telemetria, alertas. Ver docs/05.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── IAM ─────────────────────────────
+
+enum TenantStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+  CANCELED
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+model Tenant {
+  id          String       @id @default(uuid()) @db.Uuid
+  slug        String       @unique
+  name        String
+  cnpj        String?
+  status      TenantStatus @default(TRIAL)
+  settings    Json         @default("{}")
+  planId      String       @db.Uuid
+  plan        Plan         @relation(fields: [planId], references: [id])
+  trialEndsAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  users             User[]
+  roles             Role[]
+  roleAssignments   RoleAssignment[]
+  auditLogs         AuditLog[]
+  refreshTokens     RefreshToken[]
+  telemetryReadings TelemetryReading[]
+}
+
+model Plan {
+  id         String      @id @default(uuid()) @db.Uuid
+  slug       String      @unique
+  name       String
+  isPublic   Boolean     @default(false)
+  priceCents Int?
+  createdAt  DateTime    @default(now())
+  limits     PlanLimit[]
+  tenants    Tenant[]
+}
+
+model PlanLimit {
+  id     String @id @default(uuid()) @db.Uuid
+  planId String @db.Uuid
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  key    String
+  value  Int? // null = ilimitado
+
+  @@unique([planId, key])
+}
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  tenantId        String?    @db.Uuid // null = staff de plataforma
+  tenant          Tenant?    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email           String
+  passwordHash    String
+  name            String
+  phone           String?
+  status          UserStatus @default(INVITED)
+  isPlatformStaff Boolean    @default(false)
+  mfaEnabled      Boolean    @default(false)
+  mfaSecret       String?
+  driverId        String?    @unique @db.Uuid
+  lastLoginAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  roleAssignments RoleAssignment[]
+  refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String?  @db.Uuid // null = papel-semente global
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  key         String
+  name        String
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  permissions RolePermission[]
+  assignments RoleAssignment[]
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+}
+
+model Permission {
+  id    String           @id @default(uuid()) @db.Uuid
+  key   String           @unique
+  group String
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model RoleAssignment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  tenantId  String?  @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId, tenantId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tenantId   String?   @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  familyId   String    @db.Uuid
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedBy String?   @db.Uuid
+  createdAt  DateTime  @default(now())
+  userAgent  String?
+  ip         String?
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    String?  @db.Uuid
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  actorUserId String?  @db.Uuid
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action      String
+  entityType  String
+  entityId    String
+  before      Json?
+  after       Json?
+  ip          String?
+  userAgent   String?
+  at          DateTime @default(now())
+
+  @@index([tenantId, at])
+  @@index([entityType, entityId])
+}
+
+// ──────────────────────── Telemetria (Fase 4 — fatia mínima) ────────────────────
+// Sem registro de dispositivo (Fase 2), sem particionamento/worker/agregados
+// (Fase 4 completa). Só recebe → deduplica → guarda. Ver docs/06 e ADR-0004.
+
+model TelemetryReading {
+  id               BigInt   @id @default(autoincrement())
+  tenantId         String   @db.Uuid
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  /// serial/nome do sensor (vira FK para Device na Fase 2)
+  deviceSerial     String
+  /// código da caixa lido em campo, quando informado (vira FK na Fase 2)
+  thermalBoxCode   String?
+
+  temperatureC     Decimal? @db.Decimal(6, 2)
+  humidityPct      Decimal? @db.Decimal(5, 2)
+  latitude         Float?
+  longitude        Float?
+  batteryPct       Int?
+  batteryMv        Int?
+
+  recordedAt       DateTime
+  receivedAt       DateTime @default(now())
+  ingestedByUserId String?  @db.Uuid
+
+  /// deduplicação idempotente por dispositivo
+  dedupeKey        String
+  /// campos que a API ainda não modela (movimento, ângulo, rawFlags…)
+  extra            Json?
+
+  @@unique([tenantId, deviceSerial, dedupeKey])
+  @@index([tenantId, deviceSerial, recordedAt])
+  @@index([tenantId, receivedAt])
+}
