@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as argon2 from 'argon2';
-import { PERMISSIONS, SYSTEM_ROLES, ROLE_PERMISSIONS, PLAN_SEEDS } from '@coldchain/shared';
+import { PERMISSIONS, SYSTEM_ROLES, ROLE_PERMISSIONS, PLAN_SEEDS } from '../src/shared';
 
 const prisma = new PrismaClient();
 

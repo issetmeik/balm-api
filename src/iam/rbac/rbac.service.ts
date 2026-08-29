@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Permission } from '@coldchain/shared';
+import type { Permission } from '../../shared';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 
 interface ResolvedAccess {

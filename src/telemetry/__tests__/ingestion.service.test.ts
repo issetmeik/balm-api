@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import type { IngestTelemetryBody } from '@coldchain/shared';
+import type { IngestTelemetryBody } from '../../shared';
 import { IngestionService } from '../ingestion.service';
 import { TenantContext } from '../../iam/tenant-context/tenant-context';
 

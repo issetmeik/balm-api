@@ -6,7 +6,7 @@ import {
   type LoginResponse,
   type MeResponse,
   type TokenPair,
-} from '@coldchain/shared';
+} from '../../shared';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { RbacService } from '../rbac/rbac.service';
 import { DomainError } from '../../common/domain-error';

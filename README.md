@@ -60,6 +60,8 @@ src/
   audit/             trilha de auditoria
   platform/          endpoints exclusivos do PLATFORM_ADMIN
   health/            healthcheck
+  shared/            contratos internos (schemas zod, enums, permissions,
+                     plan-limits, state machines) — antes o pacote @coldchain/shared
 prisma/
   schema.prisma
   migrations/
@@ -75,10 +77,16 @@ prisma/
 - **Erros padronizados:** RFC 9457 (`application/problem+json`).
 - **Tudo observável:** log estruturado (pino) com `requestId`/`tenantId`.
 
-## Pendências conhecidas
+## Contratos internos (`src/shared/`)
 
-- **`@coldchain/shared`** — o código ainda importa contratos (schemas zod, enums,
-  permissions, state machines) do pacote `@coldchain/shared`, declarado como
-  `workspace:*`. Fora do monorepo, `pnpm install` falha nesse pacote. Próximo passo:
-  vendorizar esse código em `src/shared/` (ou publicar o pacote) e trocar os imports.
-  Arquivos afetados: `src/iam/**`, `src/telemetry/**`, `src/platform/**`.
+Os contratos que antes vinham do pacote `@coldchain/shared` do monorepo foram
+internalizados em `src/shared/` — sem dependência externa. Fonte única para:
+
+- `enums.ts` — enums do domínio, espelhados no `schema.prisma`
+- `permissions.ts` — lista canônica de permissões + papéis-semente
+- `plan-limits.ts` — chaves de limite e planos-semente
+- `state-machines.ts` — transições de rota/parada/dispositivo/tenant
+- `contracts/*.ts` — DTOs zod de auth, tenant, user, ingestão
+
+Se o monorepo `coldchain-saas` também evoluir esses contratos, mantê-los em sincronia
+é manual até um eventual pacote publicado.

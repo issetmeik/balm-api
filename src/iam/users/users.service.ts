@@ -5,7 +5,7 @@ import {
   type RoleResponse,
   type UpdateUserBody,
   type UserResponse,
-} from '@coldchain/shared';
+} from '../../shared';
 import { Prisma, PrismaService } from '../../infra/prisma/prisma.service';
 import { DomainError } from '../../common/domain-error';
 import { AuditService } from '../../audit/audit.service';

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ingestTelemetryBody } from '@coldchain/shared';
+import { ingestTelemetryBody } from '../shared';
 import { ZodBody } from '../common/zod.pipe';
 import { CurrentUser, RequirePermissions, type AuthUser } from '../iam/auth/decorators';
 import { IngestionService } from './ingestion.service';

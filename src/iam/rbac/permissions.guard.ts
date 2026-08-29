@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Permission } from '@coldchain/shared';
+import type { Permission } from '../../shared';
 import { DomainError } from '../../common/domain-error';
 import { PERMISSIONS_KEY, type AuthUser } from '../auth/decorators';
 

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { updateTenantSettingsBody } from '@coldchain/shared';
+import { updateTenantSettingsBody } from '../../shared';
 import { ZodBody } from '../../common/zod.pipe';
 import { RequirePermissions, CurrentUser, type AuthUser } from '../auth/decorators';
 import { TenantsService } from './tenants.service';

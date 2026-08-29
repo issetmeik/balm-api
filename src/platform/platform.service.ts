@@ -5,7 +5,7 @@ import {
   TENANT_TRANSITIONS,
   type CreateTenantBody,
   type TenantStatus,
-} from '@coldchain/shared';
+} from '../shared';
 import { PrismaService } from '../infra/prisma/prisma.service';
 import { DomainError } from '../common/domain-error';
 import { AuditService } from '../audit/audit.service';
@@ -51,7 +51,7 @@ export class PlatformService {
     });
     if (!adminRole) {
       throw DomainError.conflict(
-        'Papéis-semente ausentes. Rode o seed (pnpm --filter @coldchain/api seed).',
+        'Papéis-semente ausentes. Rode o seed (pnpm seed).',
       );
     }
 

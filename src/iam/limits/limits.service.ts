@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { PlanLimitKey, UsageResponse } from '@coldchain/shared';
+import type { PlanLimitKey, UsageResponse } from '../../shared';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { DomainError } from '../../common/domain-error';
 import { TenantContext } from '../tenant-context/tenant-context';

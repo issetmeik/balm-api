@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import type { RecentTelemetryResponse, TelemetryReadingRow } from '@coldchain/shared';
+import type { RecentTelemetryResponse, TelemetryReadingRow } from '../shared';
 import { PrismaService } from '../infra/prisma/prisma.service';
 import { RequirePermissions } from '../iam/auth/decorators';
 import { TenantContext } from '../iam/tenant-context/tenant-context';

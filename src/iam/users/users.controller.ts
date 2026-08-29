@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { createUserBody, setUserRolesBody, updateUserBody } from '@coldchain/shared';
+import { createUserBody, setUserRolesBody, updateUserBody } from '../../shared';
 import { ZodBody } from '../../common/zod.pipe';
 import { RequirePermissions } from '../auth/decorators';
 import { UsersService } from './users.service';

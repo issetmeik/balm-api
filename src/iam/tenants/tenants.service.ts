@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { tenantSettings, type TenantResponse, type TenantSettings } from '@coldchain/shared';
+import { tenantSettings, type TenantResponse, type TenantSettings } from '../../shared';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { DomainError } from '../../common/domain-error';
 import { AuditService } from '../../audit/audit.service';

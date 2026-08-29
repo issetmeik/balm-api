@@ -3,7 +3,7 @@ import {
   TELEMETRY_CLOCK_SKEW_HOURS,
   type IngestTelemetryBody,
   type IngestTelemetryResponse,
-} from '@coldchain/shared';
+} from '../shared';
 import { PrismaService } from '../infra/prisma/prisma.service';
 import { TenantContext } from '../iam/tenant-context/tenant-context';
 

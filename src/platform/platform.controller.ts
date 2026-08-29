@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
-import { createTenantBody } from '@coldchain/shared';
+import { createTenantBody } from '../shared';
 import { ZodBody } from '../common/zod.pipe';
 import { PlatformOnly, RequirePermissions } from '../iam/auth/decorators';
 import { PlatformService } from './platform.service';

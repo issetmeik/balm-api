@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { loginBody, refreshBody } from '@coldchain/shared';
+import { loginBody, refreshBody } from '../../shared';
 import { ZodBody } from '../../common/zod.pipe';
 import { AuthService } from './auth.service';
 import { CurrentUser, Public, type AuthUser } from './decorators';
