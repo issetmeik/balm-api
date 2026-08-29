@@ -10,16 +10,36 @@ Extraído do monorepo `coldchain-saas` (`apps/api`) para versionamento próprio.
 
 ## Setup
 
+Requer **Node >= 20**, **pnpm** e **Docker** (ou um PostgreSQL próprio via `DATABASE_URL`).
+
 ```bash
 pnpm install
-cp .env.example .env          # ajuste os segredos
+cp .env.example .env          # ajuste os segredos se quiser
+docker compose up -d          # Postgres em localhost:5434
 pnpm prisma:generate
-pnpm prisma:migrate           # aplica as migrations no Postgres local
-pnpm seed                     # opcional: dados de exemplo
-pnpm dev                      # http://localhost:3333
+pnpm prisma:deploy            # aplica as 2 migrations
+pnpm seed                     # usuários/planos/permissões de exemplo
+pnpm dev                      # http://localhost:3333  (docs: /api/docs)
 ```
 
-Requer Node >= 20 e um PostgreSQL acessível via `DATABASE_URL`.
+Smoke test:
+
+```bash
+curl http://localhost:3333/api/health/ready
+curl -X POST http://localhost:3333/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@demo.com","password":"ChangeMe!Demo1","tenantSlug":"demo"}'
+```
+
+Usuários do seed:
+
+| Papel | E-mail | Senha | tenantSlug |
+| --- | --- | --- | --- |
+| Plataforma | `admin@coldchain.app` | `ChangeMe!Platform1` | — |
+| Admin da empresa | `admin@demo.com` | `ChangeMe!Demo1` | `demo` |
+| Motorista | `motorista@demo.com` | `ChangeMe!Driver1` | `demo` |
+
+> Testes unitários (`pnpm test`) **não** precisam de banco.
 
 ## Scripts
 

@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: balm-api-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: balm
+      POSTGRES_PASSWORD: balm
+      POSTGRES_DB: balm
+    ports:
+      # 5432 e 5433 costumam estar ocupadas por outros bancos locais.
+      - '5434:5432'
+    volumes:
+      - balm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U balm -d balm']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  balm_pgdata:
